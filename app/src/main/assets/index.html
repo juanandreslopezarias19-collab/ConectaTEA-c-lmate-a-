@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>CalmaTEA &amp; ConectaTEA</title>
+  <meta name="description" content="PWA offline-first de autorregulación sensorial y psicoeducación para el autismo (TEA) con la mascota TEA1." />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CalmaTEA" />
+
+  <!-- Inline Data URI PWA Manifest -->
+  <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22CalmaTEA%20%26%20ConectaTEA%22%2C%22short_name%22%3A%22CalmaTEA%22%2C%22description%22%3A%22App%20sensorial%20y%20psicoeducativa%20offline-first%20para%20autismo%20TEA%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%20192%20192%27%3E%3Crect%20width%3D%27192%27%20height%3D%27192%27%20fill%3D%27%230f172a%27%20rx%3D%2736%27%2F%3E%3Ccircle%20cx%3D%2796%27%20cy%3D%2796%27%20r%3D%2764%27%20fill%3D%27%231e293b%27%20stroke%3D%27%2310b981%27%20stroke-width%3D%276%27%2F%3E%3Ctext%20x%3D%2796%27%20y%3D%27116%27%20font-size%3D%2760%27%20text-anchor%3D%27middle%27%3E%F0%9F%A4%96%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D" />
+
+  <style>
+    /* CSS Variables & Global Resets */
+    :root {
+      --bg-dark: #0f172a;
+      --card-slate: #1e293b;
+      --card-hover: #273549;
+      --border-slate: #334155;
+      --mint-accent: #10b981;
+      --mint-glow: rgba(16, 185, 129, 0.3);
+      --blue-accent: #38bdf8;
+      --blue-glow: rgba(56, 189, 248, 0.3);
+      --pink-blush: #fb7185;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* Main Container (Mobile Responsive Constraints) */
+    .app-container {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin: 0 auto;
+      padding-bottom: 24px;
+    }
+
+    /* Header Section */
+    header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      padding: 6px 0;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--mint-accent);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-title {
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #f8fafc 0%, #38bdf8 60%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 420px;
+      line-height: 1.4;
+    }
+
+    /* Offline Status Bar */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid var(--border-slate);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--mint-accent);
+      box-shadow: 0 0 8px var(--mint-accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    /* Navigation Quick Tabs */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--card-slate);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border-slate);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 8px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-dark);
+      color: var(--blue-accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    /* Sections */
+    section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--card-slate);
+      border: 1px solid var(--border-slate);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    /* ==========================================================================
+       SECTION 1: MASCOT TEA1 (CUTE & LOVABLE ROBOT)
+       ========================================================================== */
+    .mascot-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 22px 18px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      background: linear-gradient(180deg, #1e293b 0%, #152033 100%);
+      overflow: visible;
+    }
+
+    /* Mode Switcher Pill: Animado vs Retrato 3D */
+    .mascot-mode-toggle {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-slate);
+      padding: 3px;
+      border-radius: 9999px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .mode-btn.active {
+      background: var(--blue-accent);
+      color: #0f172a;
+      font-weight: 700;
+      box-shadow: 0 2px 6px var(--blue-glow);
+    }
+
+    /* Mascot Avatar Wrapper */
+    .mascot-avatar-wrapper {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+    }
+
+    /* Floating Particles Container */
+    .particles-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .floating-particle {
+      position: absolute;
+      top: 20%;
+      font-size: 1.3rem;
+      pointer-events: none;
+      animation: flyFloat 1.2s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    }
+
+    @keyframes flyFloat {
+      0% { transform: translateY(0) scale(0.6); opacity: 1; }
+      100% { transform: translateY(-70px) scale(1.2); opacity: 0; }
+    }
+
+    /* SVG Robot Character Container */
+    .mascot-svg-box {
+      width: 136px;
+      height: 136px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      filter: drop-shadow(0 8px 24px rgba(56, 189, 248, 0.35));
+      animation: floatRobot 3.4s ease-in-out infinite;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .mascot-svg-box:active {
+      transform: scale(0.92) !important;
+    }
+
+    @keyframes floatRobot {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(-1deg); }
+    }
+
+    /* Aura Ring Behind Robot */
+    .mascot-aura {
+      position: absolute;
+      width: 154px;
+      height: 154px;
+      border-radius: 50%;
+      border: 2px dashed rgba(56, 189, 248, 0.35);
+      animation: rotateAura 18s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes rotateAura {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* SVG Character Styling & Expressions */
+    .tea1-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .antenna-gem {
+      animation: gemGlow 2s ease-in-out infinite alternate;
+      transform-origin: 100px 30px;
+    }
+
+    @keyframes gemGlow {
+      0% { fill: #10b981; filter: drop-shadow(0 0 3px #10b981); }
+      100% { fill: #34d399; filter: drop-shadow(0 0 12px #34d399); transform: scale(1.1); }
+    }
+
+    .ear-led {
+      animation: earBlink 1.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes earBlink {
+      0% { opacity: 0.4; }
+      100% { opacity: 1; stroke: #38bdf8; }
+    }
+
+    /* Blinking Eyes (Natural Blinking every 3.6s) */
+    .eye-group {
+      transform-origin: center;
+      animation: naturalBlink 3.6s infinite ease-in-out;
+    }
+
+    @keyframes naturalBlink {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.08); }
+    }
+
+    .eye-happy {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Cheeks Blush */
+    .tea1-blush {
+      transition: opacity 0.3s ease, filter 0.3s ease;
+    }
+
+    /* Animated Mouth */
+    .mouth-speaking {
+      opacity: 0;
+      transform-origin: 100px 122px;
+    }
+
+    /* Speaking State on Robot */
+    .mascot-avatar-wrapper.is-speaking .mascot-svg-box {
+      animation: speakBounce 0.5s ease-in-out infinite alternate;
+      filter: drop-shadow(0 8px 30px rgba(16, 185, 129, 0.55));
+    }
+
+    @keyframes speakBounce {
+      0% { transform: translateY(-2px) scale(1); }
+      100% { transform: translateY(-10px) scale(1.05); }
+    }
+
+    .mascot-avatar-wrapper.is-speaking .mouth-smile {
+      opacity: 0;
+    }
+
+    .mascot-avatar-wrapper.is-speaking .mouth-speaking {
+      opacity: 1;
+      animation: lipSyncMouth 0.22s ease-in-out infinite alternate;
+    }
+
+    @keyframes lipSyncMouth {
+      0% { transform: scale(0.9, 0.8); }
+      100% { transform: scale(1.3, 1.7); }
+    }
+
+    .mascot-avatar-wrapper.is-speaking .tea1-blush {
+      opacity: 0.95;
+      filter: drop-shadow(0 0 8px #fb7185);
+    }
+
+    .mascot-avatar-wrapper.is-speaking .antenna-gem {
+      animation: gemGlowSpeaking 0.3s infinite alternate;
+    }
+
+    @keyframes gemGlowSpeaking {
+      0% { fill: #38bdf8; filter: drop-shadow(0 0 4px #38bdf8); }
+      100% { fill: #10b981; filter: drop-shadow(0 0 16px #10b981); }
+    }
+
+    /* Happy Touch State */
+    .mascot-avatar-wrapper.is-happy .eye-pupil,
+    .mascot-avatar-wrapper.is-happy .eye-glint {
+      opacity: 0;
+    }
+
+    .mascot-avatar-wrapper.is-happy .eye-happy {
+      opacity: 1;
+    }
+
+    /* 3D Render Image Container */
+    .mascot-3d-box {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid var(--blue-accent);
+      box-shadow: 0 0 24px var(--blue-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      animation: floatRobot 3.4s ease-in-out infinite;
+    }
+
+    .mascot-3d-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .mascot-tag {
+      margin-top: 6px;
+      background: linear-gradient(135deg, #38bdf8 0%, #10b981 100%);
+      color: #0f172a;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Dynamic Dialogue Box with Sound Waves */
+    .dialogue-box {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 18px;
+      padding: 18px 20px;
+      width: 100%;
+      min-height: 85px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    .dialogue-box:hover {
+      border-color: var(--blue-accent);
+    }
+
+    .dialogue-box::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 10px 10px 10px;
+      border-style: solid;
+      border-color: transparent transparent rgba(56, 189, 248, 0.35) transparent;
+    }
+
+    .dialogue-text {
+      font-size: 1.06rem;
+      font-weight: 500;
+      color: var(--text-main);
+      line-height: 1.48;
+      user-select: text;
+    }
+
+    .dialogue-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(51, 65, 85, 0.6);
+      font-size: 0.8rem;
+    }
+
+    .speech-status-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--blue-accent);
+      font-weight: 600;
+    }
+
+    /* Sound Waves Equalizer Visualizer */
+    .voice-wave-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 16px;
+      padding: 0 4px;
+    }
+
+    .vbar {
+      width: 3px;
+      height: 4px;
+      background: var(--blue-accent);
+      border-radius: 99px;
+      transition: height 0.15s ease, background-color 0.2s ease;
+    }
+
+    .voice-wave-bars.active .vbar {
+      background: var(--mint-accent);
+      animation: waveBarBounce 0.5s ease-in-out infinite alternate;
+    }
+
+    .voice-wave-bars.active .vbar:nth-child(1) { animation-delay: 0.0s; }
+    .voice-wave-bars.active .vbar:nth-child(2) { animation-delay: 0.15s; }
+    .voice-wave-bars.active .vbar:nth-child(3) { animation-delay: 0.3s; }
+    .voice-wave-bars.active .vbar:nth-child(4) { animation-delay: 0.1s; }
+
+    @keyframes waveBarBounce {
+      0% { height: 4px; }
+      100% { height: 16px; }
+    }
+
+    .phrase-counter {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* Mascot Action Buttons */
+    .mascot-actions {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      min-height: 48px;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: var(--blue-accent);
+      color: #0f172a;
+      box-shadow: 0 4px 12px var(--blue-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 41, 59, 0.9);
+      color: var(--text-main);
+      border: 1px solid var(--border-slate);
+    }
+
+    .btn-calm-breathe {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(56, 189, 248, 0.2) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #34d399;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    /* Voice & Sensory Controls Pill Row */
+    .voice-settings-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      padding-top: 4px;
+    }
+
+    .mini-pill {
+      font-size: 0.78rem;
+      padding: 5px 11px;
+      border-radius: 9999px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid var(--border-slate);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .mini-pill.active {
+      color: var(--mint-accent);
+      border-color: var(--mint-accent);
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .mini-pill:active {
+      transform: scale(0.94);
+    }
+
+    /* Breathing Modal / Guided State Overlay */
+    .breathing-guide-box {
+      display: none;
+      width: 100%;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--mint-accent);
+      border-radius: 16px;
+      padding: 16px;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 0 24px var(--mint-glow);
+    }
+
+    .breathing-guide-box.active {
+      display: flex;
+    }
+
+    .breathing-circle-anim {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.5) 0%, rgba(56, 189, 248, 0.2) 100%);
+      border: 3px solid var(--mint-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      transition: transform 4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .breathing-circle-anim.inhale {
+      transform: scale(1.45);
+      box-shadow: 0 0 28px var(--mint-accent);
+    }
+
+    .breathing-circle-anim.exhale {
+      transform: scale(0.9);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ==========================================================================
+       SECTION 2: POP-IT SENSORY KIT (SAFE STIMMING)
+       ========================================================================== */
+    .popit-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: linear-gradient(180deg, #1e293b 0%, #182232 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-main);
+    }
+
+    .counter-badge {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--mint-accent);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .popit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      padding: 6px 0;
+    }
+
+    @media (max-width: 380px) {
+      .popit-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+    }
+
+    /* Pop-It Bubble Button */
+    .bubble-btn {
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #334155, #1e293b);
+      border: 2px solid #475569;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: transparent;
+      transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      touch-action: manipulation;
+    }
+
+    .bubble-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Popped State */
+    .bubble-btn.popped {
+      background: radial-gradient(circle at 50% 50%, #10b981, #059669);
+      border-color: #34d399;
+      transform: scale(0.88);
+      box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.55), 0 0 16px rgba(16, 185, 129, 0.4);
+      color: #ffffff;
+      animation: popSparkle 0.3s ease forwards;
+    }
+
+    @keyframes popSparkle {
+      0% { transform: scale(1.05); }
+      50% { transform: scale(0.82); }
+      100% { transform: scale(0.88); }
+    }
+
+    .popit-instructions {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       SECTION 3: CLINICAL PSYCHOEDUCATION GUIDE
+       ========================================================================== */
+    .guide-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .info-block {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border-slate);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .info-block:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .info-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .icon-neuro { background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.4); }
+    .icon-tea { background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.4); }
+    .icon-sensory { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.4); }
+    .icon-stimming { background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.4); }
+
+    .info-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .info-description {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .info-tips {
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px dashed rgba(51, 65, 85, 0.8);
+      font-size: 0.82rem;
+      color: #38bdf8;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 16px 8px;
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- Header Section -->
+    <header>
+      <div class="brand-badge">
+        <span>🌱</span>
+        <span>Apoyo Sensorial &amp; Neurodiversidad</span>
+      </div>
+      <h1 class="brand-title">CalmaTEA &amp; ConectaTEA</h1>
+      <p class="brand-subtitle">Herramientas de autorregulación emocional, estimulación sensorial segura y psicoeducación.</p>
+    </header>
+
+    <!-- Offline & System Status -->
+    <div class="status-bar" id="statusBar">
+      <div class="status-indicator">
+        <div class="dot-pulse"></div>
+        <span id="networkStatusText">100% Offline-First (PWA Lista)</span>
+      </div>
+      <span style="font-size: 0.78rem; color: #38bdf8;">✈️ Modo Avión Seguro</span>
+    </div>
+
+    <!-- Quick Navigation Pills -->
+    <nav class="nav-tabs" aria-label="Secciones">
+      <button class="tab-btn active" id="tabNavMascot" onclick="scrollToSection('secMascot')">
+        <span>🤖</span>
+        <span>Mascota TEA1</span>
+      </button>
+      <button class="tab-btn" id="tabNavPopit" onclick="scrollToSection('secPopit')">
+        <span>🫧</span>
+        <span>Pop-It</span>
+      </button>
+      <button class="tab-btn" id="tabNavGuide" onclick="scrollToSection('secGuide')">
+        <span>📚</span>
+        <span>Guía Clínica</span>
+      </button>
+    </nav>
+
+    <!-- SECTION 1: Mascot TEA1 -->
+    <section id="secMascot">
+      <div class="card mascot-card">
+        
+        <!-- View Toggle: SVG Animado vs Retrato 3D -->
+        <div class="mascot-mode-toggle">
+          <button class="mode-btn active" id="btnModeSvg" onclick="setMascotMode('svg')">✨ Robot Animado</button>
+          <button class="mode-btn" id="btnMode3d" onclick="setMascotMode('3d')">🌟 Retrato 3D</button>
+        </div>
+
+        <!-- Interactive Mascot Avatar (Cute Robot) -->
+        <div class="mascot-avatar-wrapper" id="mascotAvatarWrapper" onclick="handleMascotClick(event)" title="Toca a TEA1 para escucharlo">
+          
+          <div class="mascot-aura"></div>
+          
+          <!-- Particle floating layer on touch -->
+          <div class="particles-layer" id="particlesLayer"></div>
+
+          <!-- 1. SVG Animated Robot Avatar -->
+          <div class="mascot-svg-box" id="mascotSvgBox">
+            <svg class="tea1-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <!-- Chassis gradient: modern metallic navy-slate -->
+                <linearGradient id="chassisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2d3f59" />
+                  <stop offset="100%" stop-color="#142033" />
+                </linearGradient>
+
+                <!-- Glowing Cyan-Mint Eye gradient -->
+                <linearGradient id="eyeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="100%" stop-color="#10b981" />
+                </linearGradient>
+              </defs>
+
+              <!-- Antenna with Glowing Heart Crystal -->
+              <g class="tea1-antenna">
+                <line x1="100" y1="46" x2="100" y2="24" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round" />
+                <!-- Heart / Gem at the tip -->
+                <path d="M100 20 C100 16 93 11 87 15 C81 19 82 26 88 32 L100 42 L112 32 C118 26 119 19 113 15 C107 11 100 16 100 20 Z" 
+                      fill="#10b981" class="antenna-gem" />
+              </g>
+
+              <!-- Side Ear Muff Modules (Headphones) -->
+              <rect x="24" y="78" width="16" height="44" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5" />
+              <line x1="32" y1="88" x2="32" y2="112" stroke="#10b981" stroke-width="3" stroke-linecap="round" class="ear-led" />
+
+              <rect x="160" y="78" width="16" height="44" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5" />
+              <line x1="168" y1="88" x2="168" y2="112" stroke="#10b981" stroke-width="3" stroke-linecap="round" class="ear-led" />
+
+              <!-- Head Body / Monitor Chassis -->
+              <rect x="36" y="44" width="128" height="114" rx="34" 
+                    fill="url(#chassisGrad)" stroke="#38bdf8" stroke-width="3.5" />
+
+              <!-- Deep OLED Screen Visor -->
+              <rect x="47" y="55" width="106" height="92" rx="24" 
+                    fill="#0a1224" stroke="#1e293b" stroke-width="2" />
+
+              <!-- Glossy Glass Arc Reflection -->
+              <path d="M 52 64 Q 100 82 148 64 Q 138 58 100 58 Q 62 58 52 64 Z" fill="rgba(255,255,255,0.14)" />
+
+              <!-- Cheeks Blush (Rosy Peach/Mint) -->
+              <ellipse cx="65" cy="118" rx="10" ry="6" fill="#fb7185" class="tea1-blush" opacity="0.6" />
+              <ellipse cx="135" cy="118" rx="10" ry="6" fill="#fb7185" class="tea1-blush" opacity="0.6" />
+
+              <!-- Kawaii Eyes Group -->
+              <g class="tea1-eyes">
+                <!-- Left Eye -->
+                <g class="eye-group eye-left">
+                  <ellipse cx="76" cy="94" rx="14" ry="19" fill="url(#eyeGrad)" class="eye-pupil" />
+                  <circle cx="72" cy="87" r="5" fill="#ffffff" class="eye-glint" />
+                  <circle cx="80" cy="99" r="2.5" fill="#ffffff" class="eye-glint" />
+                  <!-- Happy Curved Eye Arc -->
+                  <path d="M 62 95 Q 76 78 90 95" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" fill="none" class="eye-happy" />
+                </g>
+
+                <!-- Right Eye -->
+                <g class="eye-group eye-right">
+                  <ellipse cx="124" cy="94" rx="14" ry="19" fill="url(#eyeGrad)" class="eye-pupil" />
+                  <circle cx="120" cy="87" r="5" fill="#ffffff" class="eye-glint" />
+                  <circle cx="128" cy="99" r="2.5" fill="#ffffff" class="eye-glint" />
+                  <!-- Happy Curved Eye Arc -->
+                  <path d="M 110 95 Q 124 78 138 95" stroke="#38bdf8" stroke-width="5" stroke-linecap="round" fill="none" class="eye-happy" />
+                </g>
+              </g>
+
+              <!-- Cute Animated Mouth -->
+              <g class="tea1-mouth-group">
+                <!-- Sweet smiling curve (Idle) -->
+                <path d="M 91 122 Q 100 130 109 122" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" fill="none" class="mouth-smile" />
+                <!-- Talking oval mouth (Speaking) -->
+                <ellipse cx="100" cy="122" rx="7.5" ry="6.5" fill="#38bdf8" class="mouth-speaking" />
+              </g>
+            </svg>
+          </div>
+
+          <!-- 2. 3D Rendered Companion Avatar (Alternative Mode) -->
+          <div class="mascot-3d-box" id="mascot3dBox" style="display: none;">
+            <img src="tea1_mascot.jpg" alt="TEA1 Robot 3D" onerror="this.src='tea1_mascot.jpg'" />
+          </div>
+
+          <div class="mascot-tag">
+            <span>✨</span>
+            <span>TEA1 • Tu Compañero</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Dialogue Bubble -->
+        <div class="dialogue-box" id="dialogueBox" onclick="handleMascotClick(event)" title="Toca para escuchar en voz alta">
+          <p class="dialogue-text" id="dialogueText">
+            "Hola, soy TEA1. Respira profundo a tu propio ritmo: estoy aquí para acompañarte."
+          </p>
+          <div class="dialogue-footer">
+            <div class="speech-status-group">
+              <span id="speechStateIcon">🗣️</span>
+              <span id="speechIndicator">Toca para escuchar en voz alta</span>
+            </div>
+
+            <!-- Real-time Voice Waves Equalizer -->
+            <div class="voice-wave-bars" id="voiceWaveBars">
+              <span class="vbar"></span>
+              <span class="vbar"></span>
+              <span class="vbar"></span>
+              <span class="vbar"></span>
+            </div>
+
+            <span class="phrase-counter" id="phraseCounter">1 / 12</span>
+          </div>
+        </div>
+
+        <!-- Guided Sensory Breathing Box (Interactive Feature) -->
+        <div class="breathing-guide-box" id="breathingGuideBox">
+          <div class="breathing-circle-anim" id="breathingAnimCircle">🌱</div>
+          <div style="font-weight: 700; color: #34d399; font-size: 1.05rem;" id="breathingInstructionText">
+            Inhala calma despacio...
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);" id="breathingTimerText">
+            Ciclo 1 de 3 • Sincroniza tu respiración
+          </div>
+          <button class="mini-pill" onclick="stopBreathingGuide()">⏹️ Cerrar Respiración</button>
+        </div>
+
+        <!-- Primary Controls -->
+        <div class="mascot-actions">
+          <button class="btn btn-primary" onclick="handleMascotClick(event)" aria-label="Hablar y mostrar nueva frase">
+            <span>✨</span>
+            <span>Hablar / Nueva Frase</span>
+          </button>
+          <button class="btn btn-secondary" onclick="repeatCurrentPhrase()" aria-label="Repetir voz actual">
+            <span id="voiceIcon">🔊</span>
+            <span id="voiceBtnText">Repetir</span>
+          </button>
+          
+          <!-- Guided Breathing Button -->
+          <button class="btn btn-calm-breathe" onclick="startBreathingGuide()" aria-label="Respira con TEA1">
+            <span>💨</span>
+            <span>Respira con TEA1 (Calma 4-4-4)</span>
+          </button>
+        </div>
+
+        <!-- Sensory & Voice Controls -->
+        <div class="voice-settings-row">
+          <button class="mini-pill active" id="soundToggle" onclick="toggleSpeech()" title="Activar/Silenciar voz">
+            <span id="soundToggleIcon">🔊</span>
+            <span id="soundToggleLabel">Voz: Activada</span>
+          </button>
+          <button class="mini-pill" id="speedToggle" onclick="toggleSpeechSpeed()" title="Velocidad de voz">
+            <span id="speedToggleIcon">🐢</span>
+            <span id="speedToggleLabel">Velocidad: Calma (0.85x)</span>
+          </button>
+          <button class="mini-pill" id="stopVoiceBtn" onclick="stopSpeechNow()" title="Silencio inmediato para sobrecarga">
+            <span>⏹️</span>
+            <span>Silenciar</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2: Pop-It Sensory Kit -->
+    <section id="secPopit">
+      <div class="card popit-card">
+        
+        <div class="section-header">
+          <div class="section-title">
+            <span>🫧</span>
+            <span>Kit Sensorial Pop-It</span>
+          </div>
+          <div class="counter-badge" id="poppedCountBadge">
+            0 / 12 liberadas
+          </div>
+        </div>
+
+        <p class="popit-instructions">
+          Toca las burbujas para liberar sobrecarga sensorial con sonido suave y respuesta táctil.
+        </p>
+
+        <!-- 12-Bubble Responsive Grid -->
+        <div class="popit-grid" id="popitGrid" role="group" aria-label="Rejilla de estimulación sensorial">
+          <!-- Dynamically filled by JS -->
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-secondary" style="width: 100%;" onclick="resetPopIt()" aria-label="Restablecer todas las burbujas">
+            <span>🔄</span>
+            <span>Restablecer Burbujas</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 3: Clinical Psychoeducation Guide -->
+    <section id="secGuide">
+      <div class="card guide-card">
+        
+        <div class="section-header">
+          <div class="section-title">
+            <span>📚</span>
+            <span>Psicoeducación Clínica</span>
+          </div>
+          <span style="font-size: 0.8rem; color: #94a3b8;">TEA / Autismo</span>
+        </div>
+
+        <!-- Topic 1: Neurodiversidad -->
+        <div class="info-block">
+          <div class="info-header">
+            <div class="info-icon icon-neuro">🧠</div>
+            <div class="info-title">1. Neurodiversidad</div>
+          </div>
+          <p class="info-description">
+            La neurodiversidad reconoce que las diferencias en el funcionamiento cerebral humano son variaciones naturales del genoma humano y no defectos que corregir.
+          </p>
+          <div class="info-tips">
+            <span>💡</span>
+            <span><strong>Regla de oro:</strong> Cada persona procesa el lenguaje, los estímulos y las emociones de manera singular.</span>
+          </div>
+        </div>
+
+        <!-- Topic 2: Espectro Autista (TEA) -->
+        <div class="info-block">
+          <div class="info-header">
+            <div class="info-icon icon-tea">🧩</div>
+            <div class="info-title">2. Condición del Espectro Autista</div>
+          </div>
+          <p class="info-description">
+            El TEA es una condición del neurodesarrollo caracterizada por diferencias en la comunicación social y patrones de intereses enfocados, no una enfermedad lineal.
+          </p>
+          <div class="info-tips">
+            <span>💡</span>
+            <span><strong>Clave:</strong> El espectro no va de "menos a más", sino como un abanico multidimensional de habilidades.</span>
+          </div>
+        </div>
+
+        <!-- Topic 3: Sobrecarga Sensorial -->
+        <div class="info-block">
+          <div class="info-header">
+            <div class="info-icon icon-sensory">⚡</div>
+            <div class="info-title">3. Sobrecarga Sensorial (Sensory Overload)</div>
+          </div>
+          <p class="info-description">
+            Ocurre cuando el sistema nervioso recibe más información del entorno (luces, ruidos, texturas) de la que puede procesar, causando fatiga o crisis sensorial.
+          </p>
+          <div class="info-tips">
+            <span>💡</span>
+            <span><strong>Estrategia:</strong> Retirarse a un espacio con luz tenue, usar auriculares con cancelación de ruido y reducir demandas.</span>
+          </div>
+        </div>
+
+        <!-- Topic 4: Stimming y Autorregulación -->
+        <div class="info-block">
+          <div class="info-header">
+            <div class="info-icon icon-stimming">🫧</div>
+            <div class="info-title">4. Importancia del Stimming</div>
+          </div>
+          <p class="info-description">
+            Las conductas autoestimulatorias (stimming) son mecanismos saludables de defensa para modular niveles de alerta, calmar la ansiedad y concentrarse.
+          </p>
+          <div class="info-tips">
+            <span>💡</span>
+            <span><strong>Consejo:</strong> Nunca se debe castigar el stimming seguro. Herramientas táctiles como este Pop-It lo canalizan positivamente.</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <span>CalmaTEA &amp; ConectaTEA • 100% Sin dependencias externas</span>
+      <span>Diseñado para bienestar sensorial, seguridad y autonomía neurológica.</span>
+    </footer>
+
+  </div>
+
+  <!-- Embedded Logic: Speech Synthesis, Audio Melodies, Pop-It, Breathing, Service Worker -->
+  <script>
+    /* ==========================================================================
+       1. EMOTIONAL SUPPORT & SENSORY REGULATION PHRASES (TEA1)
+       ========================================================================== */
+    const TEA1_PHRASES = [
+      "Hola, soy TEA1. Respira profundo a tu propio ritmo: estoy aquí para acompañarte.",
+      "Tus emociones y sensaciones son completamente válidas. Tómate todo el tiempo que necesites.",
+      "Si el entorno se siente ruidoso o abrumador, busca un lugar seguro y baja los estímulos.",
+      "Tu cerebro funciona de una forma única y maravillosa. La neurodiversidad enriquece al mundo.",
+      "Hacer stimming es seguro, sano y natural: te ayuda a autorregular tu sistema nervioso.",
+      "Paso a paso, un momento a la vez. No tienes que demostrar ni complacer nada a nadie.",
+      "Siente el suelo firme bajo tus pies y relaja tus hombros. La calma vuelve poco a poco.",
+      "Está bien decir 'necesito una pausa'. Respetar tus límites sensoriales es un acto de autocuidado.",
+      "No tienes que hablar si ahora no te apetece. Mi compañía silenciosa está siempre aquí contigo.",
+      "Conecta con algo que te dé paz: una textura suave, una respiración profunda o este momento.",
+      "Eres suficiente tal y como eres. Tu forma de percibir la vida tiene un inmenso valor.",
+      "Inhala calma suavemente... 1, 2, 3... y suelta el aire despacio... todo va a estar bien."
+    ];
+
+    let currentPhraseIndex = 0;
+    let isSpeakingEnabled = true;
+    let speechRate = 0.88; // 0.88x (Calm pacing) or 1.0x (Normal)
+    let isSpeechRateCalm = true;
+    let isCurrentlySpeaking = false;
+    let breathingInterval = null;
+
+    /* Web Audio Synthesizer (Zero network assets, offline, safe soothing tones) */
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    /* Melodic Friendly Robot Chime (Plays on phrase start) */
+    function playRobotChime() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = 'sine';
+        osc2.type = 'triangle';
+
+        // Sweet soft two-tone chime (G5 to C6)
+        osc1.frequency.setValueAtTime(783.99, now); // G5
+        osc1.frequency.setValueAtTime(1046.50, now + 0.08); // C6
+
+        osc2.frequency.setValueAtTime(392.00, now);
+        osc2.frequency.setValueAtTime(523.25, now + 0.08);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + 0.3);
+        osc2.stop(now + 0.3);
+      } catch (e) {
+        // Audio fallback
+      }
+    }
+
+    /* Soft Pop Sound for Pop-It Bubbles */
+    function playPopSound(isPoppingOn) {
+      try {
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const now = ctx.currentTime;
+
+        if (isPoppingOn) {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(540, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.07);
+          gain.gain.setValueAtTime(0.22, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        } else {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(190, now + 0.05);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        }
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } catch (e) {}
+    }
+
+    /* ==========================================================================
+       SPEECH SYNTHESIS ENGINE (DUAL TIER: ANDROID BRIDGE + WEB SPEECH)
+       ========================================================================== */
+    function speakText(text) {
+      if (!isSpeakingEnabled) return;
+
+      // 1. Play gentle robot cue chime
+      playRobotChime();
+
+      // 2. If AndroidBridge is available in native app:
+      if (window.AndroidBridge && typeof window.AndroidBridge.speak === 'function') {
+        window.AndroidBridge.speak(text);
+        updateSpeakingUI(true);
+        // Fallback auto-reset if native listener takes time
+        setTimeout(() => {
+          if (isCurrentlySpeaking) updateSpeakingUI(false);
+        }, Math.max(2500, text.length * 85));
+        return;
+      }
+
+      // 3. Web Speech Synthesis API
+      if (!('speechSynthesis' in window)) {
+        updateSpeakingUI(true);
+        setTimeout(() => updateSpeakingUI(false), 2500);
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = speechRate;
+        utterance.pitch = 1.08; // Friendly, sweet pitch
+
+        // Select the best Spanish voice
+        const voices = window.speechSynthesis.getVoices();
+        const spanishVoice = voices.find(v => {
+          const l = (v.lang || '').toLowerCase();
+          return l.startsWith('es-') || l === 'es';
+        });
+        if (spanishVoice) {
+          utterance.voice = spanishVoice;
+        }
+
+        utterance.onstart = () => updateSpeakingUI(true);
+        utterance.onend = () => updateSpeakingUI(false);
+        utterance.onerror = () => updateSpeakingUI(false);
+
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn('Speech error:', err);
+        updateSpeakingUI(false);
+      }
+    }
+
+    /* Native Android Hooks called by UtteranceProgressListener */
+    window.onNativeSpeechStart = function() {
+      updateSpeakingUI(true);
+    };
+
+    window.onNativeSpeechEnd = function() {
+      updateSpeakingUI(false);
+    };
+
+    function updateSpeakingUI(isSpeaking) {
+      isCurrentlySpeaking = isSpeaking;
+      const avatarWrapper = document.getElementById('mascotAvatarWrapper');
+      const indicator = document.getElementById('speechIndicator');
+      const stateIcon = document.getElementById('speechStateIcon');
+      const voiceIcon = document.getElementById('voiceIcon');
+      const waveBars = document.getElementById('voiceWaveBars');
+
+      if (isSpeaking) {
+        avatarWrapper.classList.add('is-speaking');
+        indicator.textContent = 'TEA1 te está hablando...';
+        indicator.style.color = 'var(--mint-accent)';
+        stateIcon.textContent = '🎙️';
+        voiceIcon.textContent = '⏸️';
+        waveBars.classList.add('active');
+      } else {
+        avatarWrapper.classList.remove('is-speaking');
+        indicator.textContent = 'Toca para escuchar en voz alta';
+        indicator.style.color = 'var(--blue-accent)';
+        stateIcon.textContent = '🗣️';
+        voiceIcon.textContent = '🔊';
+        waveBars.classList.remove('active');
+      }
+    }
+
+    function stopSpeechNow() {
+      if (window.AndroidBridge && typeof window.AndroidBridge.stopSpeech === 'function') {
+        window.AndroidBridge.stopSpeech();
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      updateSpeakingUI(false);
+    }
+
+    function handleMascotClick(e) {
+      // Spawn cute floating particles
+      spawnMascotParticles(e);
+
+      // Trigger happy expression
+      const wrapper = document.getElementById('mascotAvatarWrapper');
+      wrapper.classList.add('is-happy');
+      setTimeout(() => wrapper.classList.remove('is-happy'), 1600);
+
+      // Advance to next phrase
+      currentPhraseIndex = (currentPhraseIndex + 1) % TEA1_PHRASES.length;
+      updatePhraseDisplay();
+      
+      // Haptic feedback
+      triggerHaptic(25);
+
+      // Speak aloud
+      const phrase = TEA1_PHRASES[currentPhraseIndex];
+      speakText(phrase);
+    }
+
+    function repeatCurrentPhrase() {
+      const phrase = TEA1_PHRASES[currentPhraseIndex];
+      triggerHaptic(20);
+      speakText(phrase);
+    }
+
+    function updatePhraseDisplay() {
+      const dialogueText = document.getElementById('dialogueText');
+      const phraseCounter = document.getElementById('phraseCounter');
+      
+      dialogueText.textContent = `"${TEA1_PHRASES[currentPhraseIndex]}"`;
+      phraseCounter.textContent = `${currentPhraseIndex + 1} / ${TEA1_PHRASES.length}`;
+    }
+
+    function toggleSpeech() {
+      isSpeakingEnabled = !isSpeakingEnabled;
+      const toggleBtn = document.getElementById('soundToggle');
+      const toggleIcon = document.getElementById('soundToggleIcon');
+      const toggleLabel = document.getElementById('soundToggleLabel');
+      
+      if (isSpeakingEnabled) {
+        toggleBtn.classList.add('active');
+        toggleIcon.textContent = '🔊';
+        toggleLabel.textContent = 'Voz: Activada';
+        speakText(TEA1_PHRASES[currentPhraseIndex]);
+      } else {
+        toggleBtn.classList.remove('active');
+        toggleIcon.textContent = '🔇';
+        toggleLabel.textContent = 'Voz: Silenciada';
+        stopSpeechNow();
+      }
+    }
+
+    function toggleSpeechSpeed() {
+      isSpeechRateCalm = !isSpeechRateCalm;
+      const speedBtn = document.getElementById('speedToggle');
+      const speedIcon = document.getElementById('speedToggleIcon');
+      const speedLabel = document.getElementById('speedToggleLabel');
+
+      if (isSpeechRateCalm) {
+        speechRate = 0.88;
+        speedIcon.textContent = '🐢';
+        speedLabel.textContent = 'Velocidad: Calma (0.85x)';
+      } else {
+        speechRate = 1.02;
+        speedIcon.textContent = '🐇';
+        speedLabel.textContent = 'Velocidad: Normal (1.0x)';
+      }
+      triggerHaptic(15);
+    }
+
+    function setMascotMode(mode) {
+      const svgBox = document.getElementById('mascotSvgBox');
+      const box3d = document.getElementById('mascot3dBox');
+      const btnSvg = document.getElementById('btnModeSvg');
+      const btn3d = document.getElementById('btnMode3d');
+
+      if (mode === '3d') {
+        svgBox.style.display = 'none';
+        box3d.style.display = 'flex';
+        btn3d.classList.add('active');
+        btnSvg.classList.remove('active');
+      } else {
+        svgBox.style.display = 'flex';
+        box3d.style.display = 'none';
+        btnSvg.classList.add('active');
+        btn3d.classList.remove('active');
+      }
+      triggerHaptic(15);
+    }
+
+    function spawnMascotParticles(event) {
+      const container = document.getElementById('particlesLayer');
+      if (!container) return;
+      const emojis = ['💖', '✨', '🌱', '⭐', '🫧'];
+      for (let i = 0; i < 4; i++) {
+        const p = document.createElement('span');
+        p.className = 'floating-particle';
+        p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        p.style.left = `${38 + (Math.random() * 30 - 15)}%`;
+        p.style.animationDelay = `${i * 0.09}s`;
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 1250);
+      }
+    }
+
+    function triggerHaptic(durationMs) {
+      if (window.AndroidBridge && typeof window.AndroidBridge.vibrate === 'function') {
+        window.AndroidBridge.vibrate(durationMs);
+      } else if (navigator.vibrate) {
+        navigator.vibrate(durationMs);
+      }
+    }
+
+    /* ==========================================================================
+       GUIDED SENSORY BREATHING (CALMA 4-4-4)
+       ========================================================================== */
+    function startBreathingGuide() {
+      const guideBox = document.getElementById('breathingGuideBox');
+      const circle = document.getElementById('breathingAnimCircle');
+      const instrText = document.getElementById('breathingInstructionText');
+      const timerText = document.getElementById('breathingTimerText');
+
+      guideBox.classList.add('active');
+      guideBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      let cycle = 1;
+      const totalCycles = 3;
+
+      function runCycle() {
+        if (cycle > totalCycles) {
+          instrText.textContent = '✨ ¡Excelente trabajo! Siente la calma.';
+          timerText.textContent = 'Respiración completada';
+          circle.classList.remove('inhale', 'exhale');
+          speakText("Excelente trabajo. Tu respiración y tu cuerpo están en calma.");
+          setTimeout(stopBreathingGuide, 4000);
+          return;
+        }
+
+        // Phase 1: Inhale 4s
+        instrText.textContent = `🌱 Inhala calma suavemente...`;
+        timerText.textContent = `Ciclo ${cycle} de ${totalCycles} • Inhalando (4s)`;
+        circle.classList.remove('exhale');
+        circle.classList.add('inhale');
+        speakText("Inhala calma suavemente...");
+
+        setTimeout(() => {
+          if (!guideBox.classList.contains('active')) return;
+          // Phase 2: Hold 4s
+          instrText.textContent = `🕊️ Sostén el aire con tranquilidad...`;
+          timerText.textContent = `Ciclo ${cycle} de ${totalCycles} • Sosteniendo (4s)`;
+
+          setTimeout(() => {
+            if (!guideBox.classList.contains('active')) return;
+            // Phase 3: Exhale 4s
+            instrText.textContent = `🫧 Exhala despacio y suelta la tensión...`;
+            timerText.textContent = `Ciclo ${cycle} de ${totalCycles} • Exhalando (4s)`;
+            circle.classList.remove('inhale');
+            circle.classList.add('exhale');
+            speakText("Exhala despacio y suelta todo.");
+
+            setTimeout(() => {
+              if (!guideBox.classList.contains('active')) return;
+              cycle++;
+              runCycle();
+            }, 4000);
+
+          }, 4000);
+
+        }, 4000);
+      }
+
+      runCycle();
+    }
+
+    function stopBreathingGuide() {
+      const guideBox = document.getElementById('breathingGuideBox');
+      guideBox.classList.remove('active');
+      const circle = document.getElementById('breathingAnimCircle');
+      circle.classList.remove('inhale', 'exhale');
+      stopSpeechNow();
+    }
+
+    /* ==========================================================================
+       2. TOUCH SENSORY KIT / POP-IT (SAFE STIMMING)
+       ========================================================================== */
+    const TOTAL_BUBBLES = 12;
+    const bubbleStates = new Array(TOTAL_BUBBLES).fill(false);
+
+    function initPopItGrid() {
+      const grid = document.getElementById('popitGrid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < TOTAL_BUBBLES; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'bubble-btn';
+        btn.id = `bubble-${i}`;
+        btn.setAttribute('aria-label', `Burbuja sensorial ${i + 1}`);
+        btn.setAttribute('aria-pressed', 'false');
+
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          toggleBubble(i);
+        });
+
+        grid.appendChild(btn);
+      }
+      updatePoppedCounter();
+    }
+
+    function toggleBubble(index) {
+      bubbleStates[index] = !bubbleStates[index];
+      const btn = document.getElementById(`bubble-${index}`);
+      
+      if (bubbleStates[index]) {
+        btn.classList.add('popped');
+        btn.setAttribute('aria-pressed', 'true');
+        btn.textContent = '✨';
+        playPopSound(true);
+        triggerHaptic(25);
+      } else {
+        btn.classList.remove('popped');
+        btn.setAttribute('aria-pressed', 'false');
+        btn.textContent = '';
+        playPopSound(false);
+        triggerHaptic(15);
+      }
+
+      updatePoppedCounter();
+    }
+
+    function resetPopIt() {
+      for (let i = 0; i < TOTAL_BUBBLES; i++) {
+        bubbleStates[i] = false;
+        const btn = document.getElementById(`bubble-${i}`);
+        if (btn) {
+          btn.classList.remove('popped');
+          btn.setAttribute('aria-pressed', 'false');
+          btn.textContent = '';
+        }
+      }
+      playPopSound(false);
+      triggerHaptic(35);
+      updatePoppedCounter();
+    }
+
+    function updatePoppedCounter() {
+      const poppedCount = bubbleStates.filter(Boolean).length;
+      const badge = document.getElementById('poppedCountBadge');
+      badge.textContent = `${poppedCount} / ${TOTAL_BUBBLES} liberadas`;
+      
+      if (poppedCount === TOTAL_BUBBLES) {
+        badge.style.background = 'rgba(16, 185, 129, 0.35)';
+        badge.textContent = '🎉 ¡Completamente regulado!';
+      } else {
+        badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      }
+    }
+
+    /* ==========================================================================
+       3. NAVIGATION TABS
+       ========================================================================== */
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      if (sectionId === 'secMascot') document.getElementById('tabNavMascot').classList.add('active');
+      if (sectionId === 'secPopit') document.getElementById('tabNavPopit').classList.add('active');
+      if (sectionId === 'secGuide') document.getElementById('tabNavGuide').classList.add('active');
+    }
+
+    /* ==========================================================================
+       4. EMBEDDED SERVICE WORKER VIA BLOB (100% OFFLINE CACHING)
+       ========================================================================== */
+    function registerEmbeddedServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const swCode = `
+            const CACHE_NAME = 'calmatea-offline-v2';
+            self.addEventListener('install', (event) => {
+              self.skipWaiting();
+            });
+
+            self.addEventListener('activate', (event) => {
+              event.waitUntil(clients.claim());
+            });
+
+            self.addEventListener('fetch', (event) => {
+              event.respondWith(
+                caches.match(event.request).then((cachedResponse) => {
+                  if (cachedResponse) {
+                    return cachedResponse;
+                  }
+                  return fetch(event.request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                      const responseToCache = networkResponse.clone();
+                      caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                      });
+                    }
+                    return networkResponse;
+                  }).catch(() => {
+                    return caches.match(event.request);
+                  });
+                })
+              );
+            });
+          `;
+
+          const blob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(blob);
+
+          navigator.serviceWorker.register(swUrl)
+            .then((reg) => console.log('SW registrado:', reg.scope))
+            .catch((err) => console.log('SW error:', err));
+        } catch (e) {
+          console.warn('SW Blob error:', e);
+        }
+      }
+    }
+
+    /* ==========================================================================
+       INITIALIZATION
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      initPopItGrid();
+      updatePhraseDisplay();
+      registerEmbeddedServiceWorker();
+
+      // Pre-warm Speech Synthesis voices list
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          window.speechSynthesis.getVoices();
+        };
+      }
+
+      // Network status listener
+      window.addEventListener('online', () => {
+        document.getElementById('networkStatusText').textContent = 'Conectado (Modo Híbrido)';
+      });
+      window.addEventListener('offline', () => {
+        document.getElementById('networkStatusText').textContent = '100% Offline-First (PWA Activa)';
+      });
+    });
+  </script>
+</body>
+</html>

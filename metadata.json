@@ -1,0 +1,6 @@
+{
+  "name": "CalmaTEA & ConectaTEA",
+  "description": "PWA offline-first de autorregulación sensorial y psicoeducación en autismo (TEA) con mascota TEA1, stimming Pop-It y síntesis de voz.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
